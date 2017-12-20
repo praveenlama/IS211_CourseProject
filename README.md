@@ -35,6 +35,7 @@ For Login -> email: praveenlama@gmail.com  |  password: pass123
 <p>A user can to their books list (/books), and browse through the list of books owned by them and also delete the books from it.</p>
 <p>Finally, a user can log out and go out of the application.</p>
 
+*** Some of the fields might be missing or have null or 0 because the API does not have the field in their JSON Response.
 *** When going to Categories Page, you might have a slight delay loading the page because it is making multiple api calls to Google Books Api to load the carousels
 *** Any other user will have his/her own list of books which are added by themselves.
 
