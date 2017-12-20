@@ -1,0 +1,187 @@
+<!-- Using bootstrap as our Front-end Library for great UI and dynamic functions -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Books for All</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick-theme.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <style>
+        #myInput{
+            width:100% !important;
+        }
+        .card {
+            box-shadow: 0 4px 8px 2px rgba(0,0,0,0.2);
+            transition: 0.3s;
+            overflow:hidden;
+            margin-right:50px;
+            background: gray;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        }
+
+        .card-block{
+            max-height: 110px;
+            min-height: 110px;
+            padding: 2px 16px;
+            background: white;
+        }
+        .card-link{
+            padding: 2px 16px;
+            max-height: 50px;
+            min-height: 50px;
+            background: #1EC4E9;
+        }
+        .card-link>form>button{
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+        }
+
+        img.card-img-top {
+            max-height: 200px;
+            min-height: 200px;
+            overflow:hidden;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">Books for All</a>
+    </div>
+    <ul class="nav navbar-nav">
+        <li class="active"><a href="/">Home</a></li>
+        <li><a href="/categories">Categories</a></li>
+        <li><a href="/books">Your Books</a></li>
+        <li><a href="/addBook">Add a Book</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">Welcome {{ Username }}</a></li>
+        <li><a href="/logout">Log Out</a></li>
+    </ul>
+  </div>
+</nav>
+<div class="container">
+    {% if notice %}
+        <div class="alert alert-success">
+          <strong>{{notice}}</strong>
+        </div>
+    {% endif %}
+    {% if errorNotice %}
+        <div class="alert alert-danger">
+          <strong>{{errorNotice}}</strong>
+        </div>
+    {% endif %}
+
+    <form class="form-inline" action="/search" method="POST" role="form">
+        <div class="jumbotron">
+                <h2>Search any Books via Google Books API</h2>
+                <p><small class="text-muted">For Example: Search for "9780062381736"</small></p>
+                <div class="container">
+                    <span class="col-md-10">
+                        <input class="form-control input-lg" id="myInput" name="search" placeholder="Type any ISBN" type="text">
+                    </span>
+                    <span class="col-md-2 input-group-btn">
+                            <button type="submit" id="searchButton" class="btn btn-default btn-primary">
+                                <span class=" glyphicon glyphicon-search"></span>
+                            </button>
+                    </span>
+                </div>
+        </div>
+    </form>
+    {% if searchResults %}
+    <div class="row" style="margin-top:50px">
+        <h2>Here's the Result:</h2>
+        <table class="table">
+            <thead>
+              <tr>
+                <th>Cover Image</th>
+                <th>ISBN</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Summary</th>
+                <th>Average Rating</th>
+                <th>Page Count</th>
+                <th>Add</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in searchResults %}
+              <tr>
+                <td><img src="{{ item.image }}"></td>
+                <td>{{ item.isbn }}</td>
+                <td>{{ item.title }}</td>
+                <td>{{ item.author }}</td>
+                <td>{{ item.summary }}</td>
+                <td>{{ item.averageRating }}</td>
+                <td>{{ item.pageCount }}</td>
+                <td>
+                    <form action="/addHomeBook" method="POST" role="form">
+                        <input type="hidden" name="isbn" value="{{ item.isbn }}">
+                        <input type="hidden" name="title" value="{{ item.title }}">
+                        <input type="hidden" name="author" value="{{ item.author }}">
+                        <input type="hidden" name="summary" value="{{ item.summary }}">
+                        <input type="hidden" name="image" value="{{ item.image }}">
+                        <input type="hidden" name="averageRating" value="{{ item.averageRating }}">
+                        <input type="hidden" name="pageCount" value="{{ item.pageCount }}">
+                        <button type="submit" class="btn btn-default btn-primary">Add to your List</button>
+                    </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    <div class="row container">
+        <div><h3>Perfect for the Holidays.</h3></div>
+        <div class="books-carousel">
+            {% for item in Carousellist %}
+                <div class="card" style="width: 20rem;">
+                  <img class="card-img-top" src="{{item.image}}" alt="Card image cap">
+                  <div class="card-block">
+                    <h4 class="card-title">{{ item.title }}</h4>
+                    <p class="card-text">{{ item.summary }}</p>
+                  </div>
+                    <div class="card-link">
+                        <form action="/addHomeBook" method="POST" role="form">
+                            <input type="hidden" name="isbn" value="{{ item.isbn }}">
+                            <input type="hidden" name="title" value="{{ item.title }}">
+                            <input type="hidden" name="author" value="{{ item.author }}">
+                            <input type="hidden" name="summary" value="{{ item.summary }}">
+                            <input type="hidden" name="image" value="{{ item.image }}">
+                            <input type="hidden" name="averageRating" value="{{ item.averageRating }}">
+                            <input type="hidden" name="pageCount" value="{{ item.pageCount }}">
+                            <button type="submit" class="">Add to your List</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="//cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick.min.js"></script>
+<script type="text/javascript">
+      $('.books-carousel').slick({
+          dots: true,
+          autoplay: true,
+          autoplaySpeed: 2000,
+          speed: 300,
+          infinite: true,
+          slidesToShow: 4,
+          slidesToScroll: 1
+      });
+</script>
+</body>
+</html>
